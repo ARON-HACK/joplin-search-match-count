@@ -1,5 +1,5 @@
 import { EditorView, ViewPlugin, ViewUpdate } from '@codemirror/view';
-import { getSearchQuery, searchPanelOpen } from '@codemirror/search';
+import { getSearchQuery, searchPanelOpen, SearchQuery } from '@codemirror/search';
 import { countMatches, formatCount, EMPTY_COUNT, MatchCount } from './countMatches';
 
 /** Debounce before recounting, so typing a query does not scan on every keystroke. */
@@ -21,16 +21,21 @@ const matchCountPlugin = ViewPlugin.fromClass(class {
 	private count: MatchCount = EMPTY_COUNT;
 
 	// Scans are skipped unless something relevant changed.
-	private lastQuery = '';
+	private lastQuery: SearchQuery | null = null;
 	private lastDocVersion = -1;
 	private lastSelection = -1;
+
+	// Counts document changes rather than reading doc.length, so that
+	// length-preserving edits (overtype, replace-one, undo) still invalidate.
+	private docVersion = 0;
 
 	constructor(private view: EditorView) {
 		this.sync(view);
 	}
 
 	update(update: ViewUpdate) {
-		this.sync(update.view, update.docChanged || update.selectionSet);
+		if (update.docChanged) this.docVersion++;
+		this.sync(update.view);
 	}
 
 	destroy() {
@@ -46,7 +51,7 @@ const matchCountPlugin = ViewPlugin.fromClass(class {
 		}
 	}
 
-	private sync(view: EditorView, mayHaveChanged = true) {
+	private sync(view: EditorView) {
 		const panel = view.dom.querySelector('.cm-panel.cm-search') as HTMLElement | null;
 
 		// Panel closed: drop the label so it is rebuilt fresh next time.
@@ -54,7 +59,7 @@ const matchCountPlugin = ViewPlugin.fromClass(class {
 			this.clearTimer();
 			this.label?.remove();
 			this.label = null;
-			this.lastQuery = '';
+			this.lastQuery = null;
 			return;
 		}
 
@@ -75,27 +80,29 @@ const matchCountPlugin = ViewPlugin.fromClass(class {
 			this.render();
 		}
 
-		if (!mayHaveChanged) return;
-
 		const query = getSearchQuery(view.state);
-		const docVersion = view.state.doc.length;
 		const selection = view.state.selection.main.from;
 
-		if (query.search === this.lastQuery &&
-			docVersion === this.lastDocVersion &&
+		// Compare the whole query, not just its text: toggling match-case,
+		// regexp or whole-word moves neither the document nor the selection,
+		// so the search string alone would keep serving the pre-toggle total.
+		const queryChanged = !this.lastQuery || !query.eq(this.lastQuery);
+
+		if (!queryChanged &&
+			this.docVersion === this.lastDocVersion &&
 			selection === this.lastSelection) {
 			return;
 		}
 
 		// A changed query invalidates the total, so blank it rather than leave a
 		// stale number visible during the debounce.
-		if (query.search !== this.lastQuery) {
+		if (queryChanged) {
 			this.count = EMPTY_COUNT;
 			this.render();
 		}
 
-		this.lastQuery = query.search;
-		this.lastDocVersion = docVersion;
+		this.lastQuery = query;
+		this.lastDocVersion = this.docVersion;
 		this.lastSelection = selection;
 
 		this.scheduleRecount();
