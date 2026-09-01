@@ -6,8 +6,8 @@
 	"name": "Search Match Count",
 	"description": "Restores the search match counter (e.g. 3/17) in the Markdown editor's search panel, which was lost in the CodeMirror 6 migration.",
 	"author": "Aron Wu",
-	"homepage_url": "https://github.com/ARON-HACK/joplin-plugin-search-match-count",
-	"repository_url": "https://github.com/ARON-HACK/joplin-plugin-search-match-count",
+	"homepage_url": "https://github.com/ARON-HACK/joplin-search-match-count",
+	"repository_url": "https://github.com/ARON-HACK/joplin-search-match-count",
 	"keywords": ["search", "editor", "codemirror", "match", "count"],
 	"categories": ["editor"],
 	"platforms": ["desktop"]
