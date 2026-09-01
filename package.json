@@ -1,5 +1,5 @@
 {
-  "name": "joplin-search-match-count",
+  "name": "joplin-plugin-search-match-count",
   "version": "1.0.0",
   "description": "Shows the number of search matches (e.g. 3/17) in the Markdown editor's search panel.",
   "scripts": {
