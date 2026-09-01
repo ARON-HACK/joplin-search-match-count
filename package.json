@@ -1,6 +1,6 @@
 {
   "name": "joplin-plugin-search-match-count",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Shows the number of search matches (e.g. 3/17) in the Markdown editor's search panel.",
   "scripts": {
     "dist": "webpack --env joplin-plugin-config=buildMain && webpack --env joplin-plugin-config=buildExtraScripts && webpack --env joplin-plugin-config=createArchive",
