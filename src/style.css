@@ -1,0 +1,13 @@
+.cm-search-match-count {
+	display: inline-block;
+	margin: 0 4px;
+	padding: 0 2px;
+	font-size: 90%;
+	line-height: 1.6;
+	white-space: nowrap;
+	/* Keep the digits from nudging the buttons as the count changes width. */
+	min-width: 5ch;
+	text-align: center;
+	opacity: 0.75;
+	font-variant-numeric: tabular-nums;
+}

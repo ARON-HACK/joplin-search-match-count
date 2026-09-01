@@ -1,0 +1,6 @@
+node_modules/
+dist/
+publish/
+*.jpl
+.DS_Store
+dist-test/
